@@ -1,9 +1,18 @@
+const Schedule = require('node-schedule');
 var constant = require('../../utils/constant.js')
 var emailUtil = require('../../utils/email.js')
 var timeUtil = require('../../utils/time.js')
 const router = require('koa-router')()
 
 var userInfos = constant.userInfos;
+
+Schedule.scheduleJob(`0 0 2 * * *`, function(){
+  Object.keys(userInfos).forEach(function(key){
+    if(userInfos[key].endTime < Date.now()){
+      delete userInfos[key];
+    }
+  });
+});
 
 function getUid(){
   return 'x_' + parseInt(Math.random() * 1000) + Date.now();
