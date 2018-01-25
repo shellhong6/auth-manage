@@ -19,7 +19,9 @@ function getUid(){
 }
 function getHtml(r, uid){
   var html = r.category.split(',').map(function(item){
-    return `<li style="margin-bottom:10px;">${constant.origins}${constant.paths[item]}?q=${uid}</li>`;
+    return `<li style="margin-bottom:10px;">
+              <a href='${constant.origins}${constant.paths[item]}?q=${uid}' target="_blank">${constant.origins}${constant.paths[item]}?q=${uid}</a>
+            </li>`;
   }).join('');
   html = `
           <ul style='margin:0;padding:0;'>${html}</ul>

@@ -17,7 +17,9 @@
         <el-input v-model="form.username"></el-input>
       </el-form-item>
       <el-form-item label="密码">
-        <el-input v-model="form.password" type="password"></el-input>
+        <el-input v-model="form.password" :type="passwordType">
+          <i slot="suffix" class="el-input__icon el-icon-view" @click="changeType"></i>
+        </el-input>
       </el-form-item>
       <el-form-item label="失效时间">
         <el-col :span="11">
@@ -146,6 +148,7 @@
       el: '#app',
       data: function() {
         return {
+          passwordType: 'password',
           emails: {},
           message: '',
           visible: false,
@@ -214,9 +217,6 @@
               _this.visible = true;
             }
           });
-          // this.message = '123456';
-          // this.visible = true;
-          // console.log(this.form);
         },
         onReset() {
           this.form = {
@@ -225,6 +225,13 @@
             date1: '',
             category: [],
             email: ''
+          }
+        },
+        changeType() {
+          if(this.passwordType == 'password'){
+            this.passwordType = 'text';
+          }else{
+            this.passwordType = 'password';
           }
         }
       }
