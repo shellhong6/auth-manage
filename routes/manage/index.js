@@ -27,6 +27,12 @@ router.get('/front/auth/honggj', async (ctx, next) => {
   await ctx.render('manage.html')
 })
 
+router.get('/front/auth/honggj-clear', async (ctx, next) => {
+  var query = ctx.query;
+  delete userInfos[query.q];
+  ctx.body = 'clear success';
+})
+
 router.get('/front/auth/honggj-emails', async (ctx, next) => {
   ctx.body = JSON.stringify({
     code: 200,
