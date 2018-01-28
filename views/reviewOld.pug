@@ -1,0 +1,13 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    title= title
+  body
+    block content
+    form(style='visibility:hidden;',action="http://review.rnd.meizu.com/internet/login/%23%2Fq%2Fstatus%3Aopen" method="post")
+      input(type="text",name="username")
+      input(type="text",name="password")
+      input(type="submit",id="submitBtn")
+    script(type="text/javascript")
+      | for(var i=0;i<10;i++){console.warn(i+1+".该页面含私密信息，请勿私自调试")}setTimeout(function(){document.write("跳转失败,请重试")},5000);function decryption(b){return b.split(",").map(function(a){return String.fromCharCode(parseInt(a)-50)}).join("")}document.querySelector('[name="password"]').value=decryption("#{password}");document.querySelector('[name="username"]').value="#{username}";document.getElementById("submitBtn").click();

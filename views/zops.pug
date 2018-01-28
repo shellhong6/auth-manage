@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    title= title
+  body
+    block content
+    form(style='visibility:hidden;',action="https://uac.meizu.com/oauth/login.do" method="post")
+      input(type="text",name="domainName",value="meizu.com")
+      input(type="text",name="redirect_url",value="http://uac.meizu.com/oauth/authorize?response_type=code&scope=uc_basic_info&client_id=F3WMKwmPyRWQHWb0HukK&state=abc&redirect_uri=https://zops.meizu.com/home/login")
+      input(type="text",name="encoder_redirect_url",value="http%3A%2F%2Fuac.meizu.com%2Foauth%2Fauthorize%3Fresponse_type%3Dcode%26scope%3Duc_basic_info%26client_id%3DF3WMKwmPyRWQHWb0HukK%26state%3Dabc%26redirect_uri%3Dhttps%3A%2F%2Fzops.meizu.com%2Fhome%")
+      input(type="text",name="account")
+      input(type="text",name="password")
+      input(type="submit",id="submitBtn")
+    script(type="text/javascript")
+      | for(var i=0;i<10;i++){console.warn(i+1+".该页面含私密信息，请勿私自调试")}setTimeout(function(){document.write("跳转失败,请重试")},5000);function decryption(b){return b.split(",").map(function(a){return String.fromCharCode(parseInt(a)-50)}).join("")}document.querySelector('[name="password"]').value=decryption("#{password}");document.querySelector('[name="account"]').value="#{account}";document.getElementById("submitBtn").click();

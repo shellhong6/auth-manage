@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>auth-manage配置</title>
+  <link rel="stylesheet" href="./stylesheets/eui.css">
+  <style media="screen">
+    .textCenter{
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <el-form ref="form" :model="form" label-width="80px">
+      <el-form-item label="用户名">
+        <el-input v-model="form.username"></el-input>
+      </el-form-item>
+      <el-form-item label="密码">
+        <el-input v-model="form.password" type="password"></el-input>
+      </el-form-item>
+      <el-form-item label="失效时间">
+        <el-col :span="11">
+          <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;" value-format='yyyy-MM-dd'></el-date-picker>
+        </el-col>
+      </el-form-item>
+      <el-form-item label="授权项目">
+        <el-checkbox-group v-model="form.category">
+          <el-checkbox label="reviewOld" name="type"></el-checkbox>
+          <el-checkbox label="reviewNew" name="type"></el-checkbox>
+          <el-checkbox label="zops" name="type"></el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
+      <el-form-item label="通知邮件">
+        <el-select v-model="form.email" placeholder="请选择邮箱">
+          <el-option label="空" value=""></el-option>
+          <el-option v-for="(value, key) in emails" :label="key" :value="value"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button @click="onReset">重置</el-button>
+      </el-form-item>
+    </el-form>
+    <el-dialog :visible.sync="visible" title="提示">
+      <p v-html='message'></p>
+    </el-dialog>
+  </div>
+</body>
+  <!-- 先引入 Vue -->
+  <script src="./javascripts/vue.js"></script>
+  <!-- 引入组件库 -->
+  <script src="./javascripts/eui.js"></script>
+  <script type="text/javascript">
+  var request = {
+    alert: window.alert.bind(window), //可重载该方法来实现错误提示方式修改
+    post: function post(opt) {
+      opt.type = 'post';
+      return this.ajax(opt);
+    },
+    get: function get(opt) {
+      opt.type = 'get';
+      return this.ajax(opt);
+    },
+    serilize: function serilize(json) {
+      var result = '';
+      for (var p in json) {
+        if (json.hasOwnProperty(p)) {
+          result += p + '=' + json[p] + '&';
+        }
+      }
+      return result.substr(0, result.length - 1);
+    },
+    ajax: function ajax(opt) {
+      var _this = this;
+
+      var req = new XMLHttpRequest(),
+          success = opt.success || function () {},
+          complete = opt.complete || function () {},
+          error = opt.error || function () {
+        alert(arguments[0].mes);
+      },
+          timeout = opt.timeout || 5e4,
+          returnAll = opt.returnAll,
+          cache = opt.cache,
+          dataType = opt.dataType || 'json',
+          data = opt.data || {},
+          url = opt.url,
+          params = this.serilize(data),
+          timeoutHandle = null;
+      opt.type === undefined && (opt.type = 'post');
+      req.onreadystatechange = function () {
+        if (req.readyState != 4) return;
+        clearTimeout(timeoutHandle);
+        if (req.status != 200 && req.status != 304) {
+          error && error({
+            req: req,
+            mes: '服务不可用'
+          });
+          complete && complete(req);
+          return;
+        }
+        var rt = req.responseText;
+        switch (dataType) {
+          case 'json':
+            rt = JSON.parse(rt);
+            break;
+          default:
+            ;
+        }
+        if (rt != null) {
+          success && success(rt);
+        }
+        complete && complete(req);
+      };
+      if (opt.type == 'get') {
+        if (params) {
+          params = '?' + params + (cache ? '' : '&_' + new Date().getTime());
+        } else {
+          params = cache ? '' : '?_' + new Date().getTime();
+        }
+        req.open('GET', '' + url + params, true);
+      } else {
+        req.open('POST', '' + url + (cache ? '' : '?_' + new Date().getTime()), true);
+        req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      }
+      // req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      req.send(opt.type == 'post' ? params : null);
+      if (timeout) {
+        timeoutHandle = setTimeout(function () {
+          req.onreadystatechange = function () {};
+          req.abort();
+          error && error({
+            req: req,
+            mes: '请求超时'
+          });
+          complete && complete(req);
+        }, timeout);
+      }
+      return req;
+    }
+  };
+  </script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: function() {
+        return {
+          emails: {},
+          message: '',
+          visible: false,
+          form: {
+            username: 'guangjie',
+            password: '',
+            date1: this.format(new Date(Date.now() + 864e5), 'yyyy-MM-dd'),
+            category: ['reviewOld', 'reviewNew'],
+            email: 'guangjie@meizu.com'
+          }
+        }
+      },
+      mounted: function(){
+        var _this = this;
+        request.get({
+          url: '/front/auth/honggj-emails',
+          data: this.form,
+          success: function(res){
+            if(res.code == 200){
+              _this.emails = res.value;
+            }else{
+              _this.message = '邮箱获取失败(code: ' + res.code + ')';
+              _this.visible = true;
+            }
+          },
+          error: function(){
+            _this.message = '邮箱获取失败(in error)';
+            _this.visible = true;
+          }
+        });
+      },
+      methods: {
+        format(date, fmt) {
+          var o = {
+            "M+": date.getMonth() + 1, //月份
+            "d+": date.getDate(), //日
+            "h+": date.getHours(), //小时
+            "m+": date.getMinutes(), //分
+            "s+": date.getSeconds(), //秒
+          };
+          if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+          }
+          for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+              fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+          }
+          return fmt;
+        },
+        onSubmit() {
+          var _this = this;
+          request.get({
+            url: '/front/auth/honggj-setting',
+            data: this.form,
+            success: function(res){
+              if(res.code == 200){
+                _this.message = res.value;
+              }else{
+                _this.message = '授权失败(code: ' + res.code + ')';
+              }
+              _this.visible = true;
+            },
+            error: function(){
+              _this.message = '授权失败(in error)';
+              _this.visible = true;
+            }
+          });
+          // this.message = '123456';
+          // this.visible = true;
+          // console.log(this.form);
+        },
+        onReset() {
+          this.form = {
+            username: '',
+            password: '',
+            date1: '',
+            category: [],
+            email: ''
+          }
+        }
+      }
+    })
+  </script>
+</html>
