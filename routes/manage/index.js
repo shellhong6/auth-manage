@@ -8,7 +8,7 @@ const router = require('koa-router')()
 var userInfos = constant.userInfos;
 var scheduleList = constant.scheduleList;
 
-Schedule.scheduleJob(`0 0 2 * * *`, function(){
+Schedule.scheduleJob(`0 0 0 * * *`, function(){
   var date = new Date();
   var curEndTime = new Date(`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} 23:59:59`).getTime();
 
@@ -108,6 +108,12 @@ router.get('/front/auth/honggj-clear', async (ctx, next) => {
   var query = ctx.query;
   delete userInfos[query.q];
   ctx.body = 'clear success';
+})
+
+router.get('/front/auth/honggj-schedule-clear', async (ctx, next) => {
+  scheduleList = scheduleList.filter(function(item){
+    return !item.username != query.q;
+  });
 })
 
 router.get('/front/auth/honggj-emails', async (ctx, next) => {
