@@ -54,8 +54,16 @@ app.use(async (ctx, next) => {
       }).length;
   if(isMustAuth){ //校验区间内
     if(!userInfo){
-      ctx.body = '请先申请权限';
-      return;
+      var list = constant.scheduleList.filter(function(info){
+        return info.uid == ctx.query.q;
+      });
+      if(list && list.length){
+        userInfo = list[0];
+      }
+      if(!userInfo){
+        ctx.body = '请先申请权限';
+        return;
+      }
     }
     var hasAuth = userInfo.category.split(',').filter(function(item){
       return path.indexOf(item) != -1;

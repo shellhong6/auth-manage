@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>auth-manage配置</title>
+  <title>auth-schedule配置</title>
   <link rel="stylesheet" href="./stylesheets/eui.css">
   <style media="screen">
     .textCenter{
@@ -21,23 +21,8 @@
           <i slot="suffix" class="el-input__icon el-icon-view" @click="changeType"></i>
         </el-input>
       </el-form-item>
-      <el-form-item label="失效时间">
-        <el-col :span="11">
-          <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;" value-format='yyyy-MM-dd'></el-date-picker>
-        </el-col>
-      </el-form-item>
-      <el-form-item label="授权项目">
-        <el-checkbox-group v-model="form.category">
-          <el-checkbox label="reviewOld" name="type"></el-checkbox>
-          <el-checkbox label="reviewNew" name="type"></el-checkbox>
-          <el-checkbox label="zops" name="type"></el-checkbox>
-        </el-checkbox-group>
-      </el-form-item>
-      <el-form-item label="通知邮件">
-        <el-select v-model="form.email" placeholder="请选择邮箱">
-          <el-option label="不发邮件" value=""></el-option>
-          <el-option v-for="(value, key) in emails" :label="key" :value="value"></el-option>
-        </el-select>
+      <el-form-item label="邮箱">
+        <el-input v-model="form.email" type="text"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">确定</el-button>
@@ -149,72 +134,33 @@
       data: function() {
         return {
           passwordType: 'password',
-          emails: {},
           message: '',
           visible: false,
           form: {
             username: 'guangjie',
             password: '',
-            // date1: this.format(new Date(Date.now() + 864e5), 'yyyy-MM-dd'),
-            date1: this.format(new Date(), 'yyyy-MM-dd'),
-            category: ['reviewOld', 'reviewNew', 'zops'],
             email: ''
           }
         }
       },
       mounted: function(){
-        var _this = this;
-        request.get({
-          url: '/front/auth/honggj-emails',
-          data: this.form,
-          success: function(res){
-            if(res.code == 200){
-              _this.emails = res.value;
-            }else{
-              _this.message = '邮箱获取失败(code: ' + res.code + ')';
-              _this.visible = true;
-            }
-          },
-          error: function(){
-            _this.message = '邮箱获取失败(in error)';
-            _this.visible = true;
-          }
-        });
       },
       methods: {
-        format(date, fmt) {
-          var o = {
-            "M+": date.getMonth() + 1, //月份
-            "d+": date.getDate(), //日
-            "h+": date.getHours(), //小时
-            "m+": date.getMinutes(), //分
-            "s+": date.getSeconds(), //秒
-          };
-          if (/(y+)/.test(fmt)) {
-            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
-          }
-          for (var k in o) {
-            if (new RegExp("(" + k + ")").test(fmt)) {
-              fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-            }
-          }
-          return fmt;
-        },
         onSubmit() {
           var _this = this;
           request.get({
-            url: '/front/auth/honggj-setting',
+            url: '/front/auth/honggj-schedule-setting',
             data: this.form,
             success: function(res){
               if(res.code == 200){
                 _this.message = res.value;
               }else{
-                _this.message = '授权失败(code: ' + res.code + ')';
+                _this.message = '设置失败(code: ' + res.code + ')';
               }
               _this.visible = true;
             },
             error: function(){
-              _this.message = '授权失败(in error)';
+              _this.message = '设置失败(in error)';
               _this.visible = true;
             }
           });
@@ -223,8 +169,6 @@
           this.form = {
             username: '',
             password: '',
-            date1: '',
-            category: [],
             email: ''
           }
         },
