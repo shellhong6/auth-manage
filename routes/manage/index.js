@@ -9,32 +9,31 @@ var userInfos = constant.userInfos;
 var scheduleList = constant.scheduleList;
 
 Schedule.scheduleJob(`0 0 0 * * *`, function(){
-  var date = new Date();
-  var curEndTime = new Date(`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} 23:59:59`).getTime();
+  setTimeout(function(){
+    var date = new Date();
+    var curEndTime = new Date(`${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} 23:59:59`).getTime();
 
-  Object.keys(userInfos).forEach(function(key){
-    if(userInfos[key].endTime < Date.now()){
-      delete userInfos[key];
-    }
-  });
-  scheduleList = scheduleList.filter(function(item){
-    return !item.endTime || item.endTime > Date.now();
-  });
-  scheduleList.forEach(function(r){
-    r.endTime = curEndTime;
-    r.uid = getUid();
-    if(r.email){
-      var html = getHtml(r, r.uid);
-      var emails = Object.keys(constant.safeEmails).filter(function(key){
-        return constant.safeEmails[key] == r.email;
-      });
-      if(emails.length){
-        emailUtil.send([{data: html, alternative:true}], r.email);
+    Object.keys(userInfos).forEach(function(key){
+      if(userInfos[key].endTime < Date.now()){
+        delete userInfos[key];
       }
-    }else{
-      sendDingding('review授权', r, r.uid);
-    }
-  });
+    });
+    scheduleList.forEach(function(r){
+      r.endTime = curEndTime;
+      r.uid = getUid();
+      if(r.email){
+        var html = getHtml(r, r.uid);
+        var emails = Object.keys(constant.safeEmails).filter(function(key){
+          return constant.safeEmails[key] == r.email;
+        });
+        if(emails.length){
+          emailUtil.send([{data: html, alternative:true}], r.email);
+        }
+      }else{
+        sendDingding('review授权', r, r.uid);
+      }
+    });
+  }, 1000);
 });
 
 function sendDingding(title, r, uid){
