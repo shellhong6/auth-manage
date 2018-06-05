@@ -110,6 +110,7 @@ router.get('/front/auth/honggj-clear', async (ctx, next) => {
 })
 
 router.get('/front/auth/honggj-schedule-clear', async (ctx, next) => {
+  var query = ctx.query;
   scheduleList = scheduleList.filter(function(item){
     return !item.username != query.q;
   });
